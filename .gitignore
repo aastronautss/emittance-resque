@@ -16,3 +16,5 @@ tags
 *.sublime-workspace
 *.sublime-project
 .project
+
+.DS_Store
