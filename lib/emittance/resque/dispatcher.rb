@@ -32,8 +32,6 @@ module Emittance
 
         def register(identifier, &callback)
           raise InvalidCallbackError, 'Emittance::Resque cannot accept closures as callbacks at this time'
-          klass = job_klass(callback)
-          registrations_for(identifier) << klass
         end
 
         def register_method_call(identifier, object, method_name)
