@@ -1,5 +1,8 @@
 # Emittance::Resque
 
+[![Build Status](https://travis-ci.org/aastronautss/emittance-resque.svg?branch=master)](https://travis-ci.org/aastronautss/emittance-resque)
+[![Maintainability](https://api.codeclimate.com/v1/badges/c22a0799f16cb43c2063/maintainability)](https://codeclimate.com/github/aastronautss/emittance-resque/maintainability)
+
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/emittance/resque`. To experiment with that code, run `bin/console` for an interactive prompt.
 
 TODO: Delete this and the text above, and describe your gem
