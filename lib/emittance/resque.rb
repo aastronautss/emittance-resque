@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'emittance/resque/version'
+require 'emittance/resque/resque'
 
 module Emittance
   ##
-  # The Resque broker for Emittance.
+  # Top-level namespace for the Resque emittance broker.
   #
   module Resque
-    # Your code goes here...
   end
 end
