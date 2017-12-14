@@ -1,101 +1,97 @@
 # frozen_string_literal: true
 
+require 'set'
+
+require 'emittance/resque/job'
+require 'emittance/resque/dispatcher/job_klass_name'
+require 'emittance/resque/dispatcher/job_klass'
+
 module Emittance
-  module Resque
+  class Resque
     ##
     # The Resque dispatcher for Emittance.
     #
     module Dispatcher
-      Registrations = Module.new
+      Jobs = Module.new
+
+      @registrations = {}
 
       class << self
+        # Find a job corresponding with the event
         def process_event(event)
-          klass_name = job_klass_name(event.class)
-          registration = Registrations.const_get klass_name
+          jobs = registrations_for(event.class)
 
-          Resque.enqueue registration, event
+          jobs.each { |job| enqueue_job job, event }
         end
 
-        def registrations_for(identifier); end
+        def registrations_for(identifier)
+          event_klass = find_event_klass(identifier)
+          registrations[event_klass] ||= new_registration
+          registrations[event_klass]
+        end
 
         def register(identifier, &callback)
-          event_klass = find_event_klass(identifier)
-          klass_name = job_klass_name(event_klass)
+          raise InvalidCallbackError, 'Emittance::Resque cannot accept closures as callbacks at this time'
           klass = job_klass(callback)
-
-          Registrations.const_set klass_name, klass
+          registrations_for(identifier) << klass
         end
 
         def register_method_call(identifier, object, method_name)
-          register identifier, &lambda_for_method_call(object, method_name)
+          validate_method_call object, method_name
+
+          event_klass = find_event_klass(identifier)
+          klass_name = method_call_job_klass_name(event_klass, object, method_name)
+          klass = method_call_job_klass(object, method_name)
+
+          Jobs.const_set klass_name, klass
+          registrations_for(event_klass) << klass
         end
 
-        def clear_registrations!; end
+        def clear_registrations!
+          registrations.each_key {|key| clear_registrations_for! key }
+        end
 
-        def clear_registrations_for!(identifier); end
+        def clear_registrations_for!(identifier)
+          registrations_for(identifier).clear
+        end
 
         private
+
+        attr_reader :registrations
+
+        def new_registration
+          Set.new
+        end
+
+        def enqueue_job(job, event)
+          Resque.enqueue job, event
+        end
 
         def find_event_klass(event)
           Emittance::EventLookup.find_event_klass(event)
         end
 
-        def job_klass_name(event_klass)
-          JobKlassName.new(event_klass).generate
+        def method_call_job_klass_name(event_klass, object, method_name)
+          JobKlassName.new(event_klass, object, method_name).generate
+        end
+
+        def method_call_job_klass(object, method_name)
+          callback = lambda_for_method_call(object, method_name)
+          job_klass callback
         end
 
         def job_klass(callback)
           JobKlass.new(callback).generate
         end
 
+        def validate_method_call(object, method_name)
+          error_msg = 'Emittance::Resque can only call methods on classes and modules'
+          raise InvalidCallbackError, error_msg unless object.is_a?(Module)
+        end
+
         def lambda_for_method_call(object, method_name)
           ->(event) { object.send method_name, event }
         end
-      end
-
-      ##
-      # Generates a unique but deterministic name for the job class.
-      #
-      class JobKlassName
-        def initialize(event_klass)
-          @event_klass = event_klass
-        end
-
-        def generate
-          "#{base_name}#{job_name}"
-        end
-
-        private
-
-        attr_reader :event_klass
-
-        def base_name
-          event_klass.to_s
-        end
-
-        def job_name
-          'Job'
-        end
-      end
-
-      ##
-      # Use this to build a job class from a callback block/proc/lambda.
-      #
-      class JobKlass
-        # The name of the method used by the background job library to perform the job.
-        PERFORM_METHOD_NAME = :perform
-
-        def initialize(callback)
-          @callback = callback
-        end
-
-        def generate
-          Class.new { define_method PERFORM_METHOD_NAME, callback }
-        end
-
-        private
-
-        attr_reader :callback
       end
     end
   end
