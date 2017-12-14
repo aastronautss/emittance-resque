@@ -2,6 +2,9 @@
 
 module Emittance
   module Resque
+    ##
+    # The Resque dispatcher for Emittance.
+    #
     module Dispatcher
       Registrations = Module.new
 
@@ -13,8 +16,7 @@ module Emittance
           Resque.enqueue registration, event
         end
 
-        def registrations_for(identifier)
-        end
+        def registrations_for(identifier); end
 
         def register(identifier, &callback)
           event_klass = find_event_klass(identifier)
@@ -28,11 +30,9 @@ module Emittance
           register identifier, &lambda_for_method_call(object, method_name)
         end
 
-        def clear_registrations!
-        end
+        def clear_registrations!; end
 
-        def clear_registrations_for!(identifier)
-        end
+        def clear_registrations_for!(identifier); end
 
         private
 
@@ -53,13 +53,16 @@ module Emittance
         end
       end
 
+      ##
+      # Generates a unique but deterministic name for the job class.
+      #
       class JobKlassName
         def initialize(event_klass)
           @event_klass = event_klass
         end
 
         def generate
-          "#{base_name}#{}"
+          "#{base_name}#{job_name}"
         end
 
         private
@@ -67,11 +70,19 @@ module Emittance
         attr_reader :event_klass
 
         def base_name
-          "#{event_klass}Job"
+          event_klass.to_s
+        end
+
+        def job_name
+          'Job'
         end
       end
 
+      ##
+      # Use this to build a job class from a callback block/proc/lambda.
+      #
       class JobKlass
+        # The name of the method used by the background job library to perform the job.
         PERFORM_METHOD_NAME = :perform
 
         def initialize(callback)

@@ -4,11 +4,12 @@ require 'emittance'
 
 module Emittance
   module Resque
+    ##
+    # The Resque broker for Emittance.
+    #
     class Resque < Emittance::Broker
       class << self
-        def process_event(event)
-
-        end
+        def process_event(event); end
       end
     end
   end
