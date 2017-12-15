@@ -41,7 +41,7 @@ module Emittance
           klass_name = method_call_job_klass_name(event_klass, object, method_name)
           klass = method_call_job_klass(object, method_name)
 
-          Jobs.const_set klass_name, klass
+          Jobs.const_set(klass_name, klass) unless Jobs.const_defined?(klass_name)
           registrations_for(event_klass) << klass
         end
 
