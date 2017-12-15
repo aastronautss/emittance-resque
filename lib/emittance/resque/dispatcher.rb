@@ -7,7 +7,7 @@ require 'emittance/resque/dispatcher/job_klass_name'
 require 'emittance/resque/dispatcher/job_klass'
 
 module Emittance
-  class Resque
+  module Resque
     ##
     # The Resque dispatcher for Emittance.
     #

@@ -1,21 +1,19 @@
 # frozen_string_literal: true
 
+require 'resque'
+require 'emittance'
+
 require 'emittance/resque/version'
 require 'emittance/resque/errors'
 
-require 'resque'
+require 'emittance/resque/broker'
+require 'emittance/resque/dispatcher'
 
 module Emittance
   ##
   # Top-level namespace for the Resque emittance broker.
   #
-  class Resque
-    class << self
-      def process_event(event)
-        dispatcher.process_event event
-      end
-    end
+  module Resque
   end
 end
 
-require 'emittance/resque/dispatcher'

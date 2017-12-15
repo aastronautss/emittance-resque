@@ -1,5 +1,5 @@
 module Emittance
-  class Resque
+  module Resque
     # Raised when validation fails for a callback.
     class InvalidCallbackError < StandardError; end
   end

@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require 'emittance'
-
 module Emittance
-  class Resque < Emittance::Broker
+  module Resque
     VERSION = '0.0.1'
   end
 end

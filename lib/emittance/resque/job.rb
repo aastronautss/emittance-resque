@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Emittance
-  class Resque
+  module Resque
     class Job
       class << self
         def perform(event)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Emittance
-  class Resque
+  module Resque
     module Dispatcher
       ##
       # Use this to build job class names.
