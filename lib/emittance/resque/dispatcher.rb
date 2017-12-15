@@ -62,7 +62,7 @@ module Emittance
         end
 
         def enqueue_job(job, event)
-          Resque.enqueue job, event
+          ::Resque.enqueue job, event
         end
 
         def find_event_klass(event)
