@@ -30,7 +30,7 @@ module Emittance
           registrations[event_klass]
         end
 
-        def register(identifier, &callback)
+        def register(_identifier, &_callback)
           raise InvalidCallbackError, 'Emittance::Resque cannot accept closures as callbacks at this time'
         end
 
@@ -46,7 +46,7 @@ module Emittance
         end
 
         def clear_registrations!
-          registrations.each_key {|key| clear_registrations_for! key }
+          registrations.each_key { |key| clear_registrations_for! key }
         end
 
         def clear_registrations_for!(identifier)
@@ -82,7 +82,7 @@ module Emittance
           JobKlass.new(callback).generate
         end
 
-        def validate_method_call(object, method_name)
+        def validate_method_call(object, _method_name)
           error_msg = 'Emittance::Resque can only call methods on classes and modules'
           raise InvalidCallbackError, error_msg unless object.is_a?(Module)
         end

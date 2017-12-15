@@ -16,4 +16,3 @@ module Emittance
   module Resque
   end
 end
-

@@ -2,6 +2,9 @@
 
 module Emittance
   module Resque
+    ##
+    # Wrapper calls for resque jobs to dispatch.
+    #
     class Job
       class << self
         def perform(event)

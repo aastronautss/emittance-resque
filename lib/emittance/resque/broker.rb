@@ -2,6 +2,9 @@
 
 module Emittance
   module Resque
+    ##
+    # The Resque broker for Emittance.
+    #
     class Broker < Emittance::Broker
       class << self
         def process_event(event)
