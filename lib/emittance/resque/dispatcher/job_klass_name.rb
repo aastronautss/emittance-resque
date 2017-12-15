@@ -6,16 +6,24 @@ module Emittance
       ##
       # Use this to build job class names.
       #
-      JobKlassName = Struct.new(:event_klass, :object, :method_name) do
+      class JobKlassName
         include Emittance::Helpers::StringHelpers
 
         SUFFIX = 'Job'
+
+        def initialize(event_klass, object, method_name)
+          @event_klass = event_klass
+          @object = object
+          @method_name = method_name
+        end
 
         def generate
           "#{prefix}#{base_name}#{suffix}"
         end
 
         private
+
+        attr_reader :event_klass, :object, :method_name
 
         def prefix
           event_klass.name
