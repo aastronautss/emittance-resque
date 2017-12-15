@@ -18,7 +18,7 @@ module Emittance
         end
 
         def generate
-          "#{prefix}#{base_name}#{suffix}"
+          "#{prefix}::#{base_name}#{suffix}"
         end
 
         private
@@ -30,7 +30,7 @@ module Emittance
         end
 
         def base_name
-          "#{object}#{formatted_method_name}"
+          "#{object}::#{formatted_method_name}"
         end
 
         def suffix

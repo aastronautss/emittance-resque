@@ -10,7 +10,15 @@ RSpec.describe Emittance::Resque::Dispatcher::JobKlassName do
     let(:action) { subject.generate }
 
     it 'returns the right format' do
-      expect(action).to eq('FooEventFooBarJob')
+      expect(action).to eq('FooEvent::Foo::BarJob')
+    end
+
+    context 'with namespaced constants' do
+      let(:object) { Foo::Baz }
+
+      it 'squashes the namespace' do
+        expect(action).to eq('FooEvent::Foo::Baz::BarJob')
+      end
     end
   end
 end

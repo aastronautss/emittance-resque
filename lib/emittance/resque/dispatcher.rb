@@ -17,6 +17,8 @@ module Emittance
       @registrations = {}
 
       class << self
+        include Emittance::Helpers::ConstantHelpers
+
         # Find a job corresponding with the event
         def process_event(event)
           jobs = registrations_for(event.class)
@@ -41,7 +43,7 @@ module Emittance
           klass_name = method_call_job_klass_name(event_klass, object, method_name)
           klass = method_call_job_klass(object, method_name)
 
-          Jobs.const_set(klass_name, klass) unless Jobs.const_defined?(klass_name)
+          set_namespaced_constant_by_name("#{Jobs.name}::#{klass_name}", klass) unless Jobs.const_defined?(klass_name)
           registrations_for(event_klass) << klass
         end
 
