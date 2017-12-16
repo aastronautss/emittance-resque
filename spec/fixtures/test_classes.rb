@@ -28,6 +28,10 @@ module Emittance
       extend Emittance::Watcher
     end
 
+    class BarWatcher
+      extend Emittance::Watcher
+    end
+
     class FooInstanceWatcher
       include Emittance::Watcher
     end

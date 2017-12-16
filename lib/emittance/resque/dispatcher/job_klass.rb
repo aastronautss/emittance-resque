@@ -10,20 +10,22 @@ module Emittance
         # The name of the method used by the background job library to perform the job.
         PERFORM_METHOD_NAME = :perform
 
-        def initialize(callback)
+        def initialize(callback, queue: :default)
           @callback = callback
+          @queue = queue
         end
 
         def generate
           klass = Class.new(Emittance::Resque::Job)
           klass.send(:define_method, PERFORM_METHOD_NAME, callback)
+          klass.instance_variable_set '@queue', queue
 
           klass
         end
 
         private
 
-        attr_reader :callback
+        attr_reader :callback, :queue
       end
     end
   end
