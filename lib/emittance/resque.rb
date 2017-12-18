@@ -22,6 +22,7 @@ module Emittance
   end
 end
 
+# :nocov:
 Emittance::Brokerage.register_broker Emittance::Resque::Broker, :resque
 
 if defined?(Rails)
@@ -30,3 +31,4 @@ if defined?(Rails)
 else
   Emittance::Resque.use_serializer Emittance::Resque::EventSerializer::Default
 end
+# :nocov:
