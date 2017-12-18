@@ -5,6 +5,7 @@ require 'set'
 require 'emittance/resque/job'
 require 'emittance/resque/dispatcher/job_klass_name'
 require 'emittance/resque/dispatcher/job_klass'
+require 'emittance/resque/event_serializer'
 
 module Emittance
   module Resque
@@ -74,7 +75,7 @@ module Emittance
         end
 
         def serialize_event(event)
-          event
+          Emittance::Resque::EventSerializer.serialize(event)
         end
 
         def method_call_job_klass_name(event_klass, object, method_name)

@@ -10,11 +10,11 @@ RSpec.describe Emittance::Resque::Job do
   end
 
   describe '.perform' do
-    let(:event) { double 'Event' }
+    let(:event) { { identifier: :foo, timestamp: Time.now, payload: 'hello world' } }
     let(:action) { job_klass.perform(event) }
 
     it 'passes to the instance variable' do
-      expect(event).to receive(:ack!)
+      expect_any_instance_of(FooEvent).to receive(:ack!)
 
       action
     end

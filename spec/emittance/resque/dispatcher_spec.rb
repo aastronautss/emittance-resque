@@ -43,13 +43,13 @@ RSpec.describe Emittance::Resque::Dispatcher do
       end
 
       it 'queues multiple times for the given event' do
-        expect(::Resque).to receive(:enqueue).exactly(3).times.with(kind_of(Class), kind_of(FooEvent))
+        expect(::Resque).to receive(:enqueue).exactly(3).times.with(kind_of(Class), hash_including(identifier: :foo))
 
         action
       end
 
       it 'does not queue for the event that isn\'t given' do
-        expect(::Resque).to receive(:enqueue).exactly(0).times.with(kind_of(Class), kind_of(BarEvent))
+        expect(::Resque).to receive(:enqueue).exactly(0).times.with(kind_of(Class), hash_including(identifier: :bar))
 
         action
       end
