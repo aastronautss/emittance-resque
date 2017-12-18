@@ -42,7 +42,7 @@ Then, we can watch for events:
 class MyKlass
   extend Emittance::Watcher
 
-  def self.something_happened
+  def self.something_happened(event)
     puts 'something happened!'
   end
 end
@@ -71,6 +71,14 @@ MyEmitter.make_something_happen
 ```
 
 ## Serialization
+
+By default, this library will piggyback on Resque's default serialization scheme. When used in a Rails app, it will detect persisted (i.e. `ActiveRecord::Base`) objects (even inside of a hash or enumerable object) and pass on the type and ID, deserializing those values back into the correct objects. The callback method should expect a single argument in the form of the correct `Emittance::Event` object.
+
+Serialization and deserialization are accomplished with an object (typically a singleton class) that respond to `serialize` and `deserialize` methods, which take an `Emittance::Event` object and the serialized `Emittance::Event` object, respectively. You can write your own serializer if your needs are not met with the built-in schemes--just create a class or an object that meets the criteria discussed earlier in this paragraph. Let Emittance know which serializer to use like so:
+
+```ruby
+Emittance::Resque.use_serializer(MyCoolSerializer)
+```
 
 ## Limitations
 

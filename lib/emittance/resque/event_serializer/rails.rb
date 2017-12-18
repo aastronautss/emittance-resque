@@ -3,6 +3,11 @@
 module Emittance
   module Resque
     module EventSerializer
+      ##
+      # Essentially the same as the default serializer, with the added ability to store the metadata for +ActiveRecord+
+      # objects, so that it will re-fetch the record when the job is dequeued. Will serialize +ActiveRecord+ objects
+      # even if inside of an array (or nested array), or if added as a value in a hash.
+      #
       module Rails
         class << self
           def serialize(event)

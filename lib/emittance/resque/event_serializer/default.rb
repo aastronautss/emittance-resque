@@ -3,6 +3,10 @@
 module Emittance
   module Resque
     module EventSerializer
+      ##
+      # The default serializer for Emittance::Resque. Converts the event with its properties into a hash, and
+      # deserializes that hash by initializing a new event with those properties.
+      #
       module Default
         class << self
           def serialize(event)
