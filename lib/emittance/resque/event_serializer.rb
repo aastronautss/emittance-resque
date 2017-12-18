@@ -2,23 +2,26 @@
 
 module Emittance
   module Resque
-    class EventSerializer
+    ##
+    # Entry point for serialization.
+    #
+    module EventSerializer
       class << self
+        def use_serializer(serializer)
+          self.serializer = serializer
+        end
+
         def serialize(event)
-          {
-            identifier: event.identifiers.first,
-            emitter: event.emitter,
-            timestamp: event.timestamp,
-            payload: event.payload
-          }
+          serializer.serialize event
         end
 
         def deserialize(event_hash)
-          identifier = event_hash[:identifier]
-          event_klass = Emittance::EventLookup.find_event_klass(identifier)
-
-          event_klass.new(event_hash[:emitter], event_hash[:timestamp], event_hash[:payload])
+          serializer.deserialize event_hash
         end
+
+        private
+
+        attr_accessor :serializer
       end
     end
   end

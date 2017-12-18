@@ -18,5 +18,3 @@ module Emittance
     end
   end
 end
-
-Emittance::Brokerage.register_broker Emittance::Resque::Broker, :resque

@@ -70,6 +70,8 @@ MyEmitter.make_something_happen
 # something happened!
 ```
 
+## Serialization
+
 ## Limitations
 
 At this time, Emittance::Resque can only register listeners as

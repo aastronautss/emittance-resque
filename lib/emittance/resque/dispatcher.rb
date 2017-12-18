@@ -6,6 +6,7 @@ require 'emittance/resque/job'
 require 'emittance/resque/dispatcher/job_klass_name'
 require 'emittance/resque/dispatcher/job_klass'
 require 'emittance/resque/event_serializer'
+require 'emittance/resque/event_serializer/default'
 
 module Emittance
   module Resque
