@@ -9,6 +9,8 @@ end
 require 'bundler/setup'
 require 'emittance/resque'
 
+require 'active_record'
+
 Dir[File.dirname(__FILE__) + "/fixtures/**/*.rb"].each { |f| require f }
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each { |f| require f }
 

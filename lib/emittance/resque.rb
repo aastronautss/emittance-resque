@@ -25,9 +25,9 @@ end
 # :nocov:
 Emittance::Brokerage.register_broker Emittance::Resque::Broker, :resque
 
-if defined?(Rails)
-  require 'emittance/resque/event_serializer/rails'
-  Emittance::Resque.use_serializer Emittance::Resque::EventSerializer::Rails
+if defined?(ActiveRecord)
+  require 'emittance/resque/event_serializer/active_record'
+  Emittance::Resque.use_serializer Emittance::Resque::EventSerializer::ActiveRecord
 else
   Emittance::Resque.use_serializer Emittance::Resque::EventSerializer::Default
 end

@@ -8,7 +8,7 @@ module Emittance
       # objects, so that it will re-fetch the record when the job is dequeued. Will serialize +ActiveRecord+ objects
       # even if inside of an array (or nested array), or if added as a value in a hash.
       #
-      module Rails
+      module ActiveRecord
         class << self
           def serialize(event)
             {
@@ -20,12 +20,12 @@ module Emittance
           end
 
           def deserialize(event_hash)
-            identifier = event_hash[:identifier]
+            identifier = event_hash['identifier']
             event_klass = Emittance::EventLookup.find_event_klass(identifier)
 
-            emitter = deserialize_object(event_hash[:emitter])
-            timestamp = deserialize_timestamp(event_hash[:timestamp])
-            payload = deserialize_object(event_hash[:payload])
+            emitter = deserialize_object(event_hash['emitter'])
+            timestamp = deserialize_timestamp(event_hash['timestamp'])
+            payload = deserialize_object(event_hash['payload'])
 
             event_klass.new(emitter, timestamp, payload)
           end
@@ -37,7 +37,7 @@ module Emittance
               serialize_hash(obj)
             elsif obj.is_a? Enumerable
               serialize_enum(obj)
-            elsif obj.is_a? ActiveRecord::Base
+            elsif obj.is_a? ::ActiveRecord::Base
               serialize_persisted(obj)
             else
               obj
@@ -45,7 +45,7 @@ module Emittance
           end
 
           def serialize_timestamp(time)
-            time.to_s
+            time.to_i
           end
 
           def serialize_hash(obj)
@@ -76,23 +76,27 @@ module Emittance
             end
           end
 
+          def deserialize_timestamp(time_i)
+            Time.at(time_i)
+          end
+
           def deserialize_hash(obj)
-            if obj[:_persisted]
+            if obj['_persisted']
               deserialize_persisted(obj)
             else
               Hash[
-                obj.map { |k, v| [k, serialize_object(v)] }
+                obj.map { |k, v| [k, deserialize_object(v)] }
               ]
             end
           end
 
           def deserialize_enum(obj)
-            obj.map { |ele| serialize_object(ele) }
+            obj.map { |ele| deserialize_object(ele) }
           end
 
           def deserialize_persisted(obj)
-            klass = Object.const_get obj[:persisted_type]
-            klass.find obj[:persisted_id]
+            klass = Object.const_get obj['persisted_type']
+            klass.find obj['persisted_id']
           end
         end
       end
