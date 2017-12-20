@@ -5,6 +5,8 @@ require 'set'
 require 'emittance/resque/job'
 require 'emittance/resque/dispatcher/job_klass_name'
 require 'emittance/resque/dispatcher/job_klass'
+require 'emittance/resque/event_serializer'
+require 'emittance/resque/event_serializer/default'
 
 module Emittance
   module Resque
@@ -19,13 +21,15 @@ module Emittance
       class << self
         include Emittance::Helpers::ConstantHelpers
 
-        # Find a job corresponding with the event
+        # Find jobs corresponding with the event and enqueue them.
         def process_event(event)
           jobs = registrations_for(event.class)
+          serialized_event = serialize_event(event)
 
-          jobs.each { |job| enqueue_job job, event }
+          jobs.each { |job| enqueue_job job, serialized_event }
         end
 
+        # Fetch all registrations for a perticular event type.
         def registrations_for(identifier)
           event_klass = find_event_klass(identifier)
           registrations[event_klass] ||= new_registration
@@ -71,17 +75,21 @@ module Emittance
           Emittance::EventLookup.find_event_klass(event)
         end
 
+        def serialize_event(event)
+          Emittance::Resque::EventSerializer.serialize(event)
+        end
+
         def method_call_job_klass_name(event_klass, object, method_name)
           JobKlassName.new(event_klass, object, method_name).generate
+        end
+
+        def job_klass(callback)
+          JobKlass.new(callback).generate
         end
 
         def method_call_job_klass(object, method_name)
           callback = lambda_for_method_call(object, method_name)
           job_klass callback
-        end
-
-        def job_klass(callback)
-          JobKlass.new(callback).generate
         end
 
         def validate_method_call(object, _method_name)

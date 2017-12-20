@@ -14,5 +14,21 @@ module Emittance
   # Top-level namespace for the Resque emittance broker.
   #
   module Resque
+    class << self
+      def use_serializer(serializer)
+        Emittance::Resque::EventSerializer.use_serializer serializer
+      end
+    end
   end
 end
+
+# :nocov:
+Emittance::Brokerage.register_broker Emittance::Resque::Broker, :resque
+
+if defined?(ActiveRecord)
+  require 'emittance/resque/event_serializer/active_record'
+  Emittance::Resque.use_serializer Emittance::Resque::EventSerializer::ActiveRecord
+else
+  Emittance::Resque.use_serializer Emittance::Resque::EventSerializer::Default
+end
+# :nocov:

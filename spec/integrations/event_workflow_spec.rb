@@ -49,4 +49,11 @@ RSpec.describe 'The event workflow' do
     Emittance::SpecFixtures::FooEmitter.new.emit :foo
     Emittance::SpecFixtures::FooEmitter.new.emit :bar
   end
+
+  it 'correctly serializes/deserializes the event' do
+    expect(Emittance::SpecFixtures::FooWatcher).to receive(:hello).with(kind_of(Emittance::Event))
+
+    Emittance::SpecFixtures::FooWatcher.watch :foo, :hello
+    Emittance::SpecFixtures::FooEmitter.new.emit :foo
+  end
 end
