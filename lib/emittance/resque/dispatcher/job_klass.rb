@@ -2,7 +2,7 @@
 
 module Emittance
   module Resque
-    module Dispatcher
+    class Dispatcher
       ##
       # Use this to build a job class from a callback block/proc/lambda.
       #

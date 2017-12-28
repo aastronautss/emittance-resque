@@ -70,8 +70,8 @@ RSpec.describe Emittance::Resque::Dispatcher do
     let(:method_name) { :bar }
     let(:action) { Emittance::Resque::Dispatcher.register_method_call(event, object, method_name) }
 
-    it 'returns a set' do
-      expect(action).to be_a(Set)
+    it 'returns a collection' do
+      expect(action).to respond_to(:each)
     end
 
     it 'adds a member to the registration' do
@@ -104,7 +104,7 @@ RSpec.describe Emittance::Resque::Dispatcher do
     let(:action) { Emittance::Resque::Dispatcher.registrations_for event }
 
     it 'returns a set' do
-      expect(action).to be_a(Set)
+      expect(action).to respond_to(:each)
     end
 
     context 'when registration is not empty' do

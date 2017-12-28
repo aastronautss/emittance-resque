@@ -2,6 +2,12 @@
 
 require 'set'
 
+module Emittance
+  module Resque
+    class Dispatcher < Emittance::Dispatcher; end
+  end
+end
+
 require 'emittance/resque/job'
 require 'emittance/resque/dispatcher/job_klass_name'
 require 'emittance/resque/dispatcher/job_klass'
@@ -13,34 +19,26 @@ module Emittance
     ##
     # The Resque dispatcher for Emittance.
     #
-    module Dispatcher
+    class Dispatcher
       Jobs = Module.new
-
-      @registrations = {}
 
       class << self
         include Emittance::Helpers::ConstantHelpers
 
-        # Find jobs corresponding with the event and enqueue them.
-        def process_event(event)
+        private
+
+        def _process_event(event)
           jobs = registrations_for(event.class)
           serialized_event = serialize_event(event)
 
           jobs.each { |job| enqueue_job job, serialized_event }
         end
 
-        # Fetch all registrations for a perticular event type.
-        def registrations_for(identifier)
-          event_klass = find_event_klass(identifier)
-          registrations[event_klass] ||= new_registration
-          registrations[event_klass]
-        end
-
-        def register(_identifier, &_callback)
+        def _register(_identifier, &_callback)
           raise InvalidCallbackError, 'Emittance::Resque cannot accept closures as callbacks at this time'
         end
 
-        def register_method_call(identifier, object, method_name)
+        def _register_method_call(identifier, object, method_name)
           validate_method_call object, method_name
 
           event_klass = find_event_klass(identifier)
@@ -49,22 +47,6 @@ module Emittance
 
           set_namespaced_constant_by_name("#{Jobs.name}::#{klass_name}", klass) unless Jobs.const_defined?(klass_name)
           registrations_for(event_klass) << klass
-        end
-
-        def clear_registrations!
-          registrations.each_key { |key| clear_registrations_for! key }
-        end
-
-        def clear_registrations_for!(identifier)
-          registrations_for(identifier).clear
-        end
-
-        private
-
-        attr_reader :registrations
-
-        def new_registration
-          Set.new
         end
 
         def enqueue_job(job, event)
