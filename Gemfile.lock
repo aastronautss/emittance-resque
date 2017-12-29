@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    emittance-resque (0.0.1)
+    emittance-resque (0.1.0)
       emittance (>= 0.1.1)
       resque
 
