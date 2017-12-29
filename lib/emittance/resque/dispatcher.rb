@@ -46,7 +46,7 @@ module Emittance
           klass = method_call_job_klass(object, method_name)
 
           set_namespaced_constant_by_name("#{Jobs.name}::#{klass_name}", klass) unless Jobs.const_defined?(klass_name)
-          registrations_for(event_klass) << klass
+          registrations_for(identifier) << klass
         end
 
         def enqueue_job(job, event)
