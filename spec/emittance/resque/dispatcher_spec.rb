@@ -13,7 +13,7 @@ RSpec.describe Emittance::Resque::Dispatcher do
       end
 
       it 'queues a job' do
-        expect(::Resque).to receive(:enqueue).once
+        expect(::Resque).to receive(:enqueue_to).once
 
         action
       end
@@ -27,7 +27,7 @@ RSpec.describe Emittance::Resque::Dispatcher do
       end
 
       it 'queues multiple jobs' do
-        expect(::Resque).to receive(:enqueue).exactly(3).times
+        expect(::Resque).to receive(:enqueue_to).exactly(3).times
 
         action
       end
@@ -43,13 +43,17 @@ RSpec.describe Emittance::Resque::Dispatcher do
       end
 
       it 'queues multiple times for the given event' do
-        expect(::Resque).to receive(:enqueue).exactly(3).times.with(kind_of(Class), hash_including(identifier: :foo))
+        expect(::Resque).to receive(:enqueue_to).exactly(3).times.with(
+          duck_type(:to_s), kind_of(Class), kind_of(String), duck_type(:to_s), hash_including(identifier: :foo)
+        )
 
         action
       end
 
       it 'does not queue for the event that isn\'t given' do
-        expect(::Resque).to receive(:enqueue).exactly(0).times.with(kind_of(Class), hash_including(identifier: :bar))
+        expect(::Resque).to receive(:enqueue_to).exactly(0).times.with(
+          anything, anything, anything, anything, hash_including(identifier: :bar)
+        )
 
         action
       end
@@ -115,7 +119,7 @@ RSpec.describe Emittance::Resque::Dispatcher do
       end
 
       it 'returns a set full of classes' do
-        expect(action.first).to be_a(Class)
+        expect(action.first).to be_a(Emittance::Resque::Dispatcher::MethodCallRegistration)
       end
     end
 
@@ -125,7 +129,7 @@ RSpec.describe Emittance::Resque::Dispatcher do
       before { Emittance::Resque::Dispatcher.register_method_call FooEvent, Foo, :bar }
 
       it 'returns the same thing as it would given an event class' do
-        expect(action.first).to be_a(Class)
+        expect(action.first).to be_a(Emittance::Resque::Dispatcher::MethodCallRegistration)
       end
     end
   end

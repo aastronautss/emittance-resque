@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'The event workflow' do
-  before do
-    stub_const 'Emittance::Resque::Dispatcher::Jobs', Module.new
-    Emittance.use_broker :resque
-  end
+  before { Emittance.use_broker :resque }
   after { Emittance::Resque::Dispatcher.clear_registrations! }
 
   it 'runs for a single listener' do
