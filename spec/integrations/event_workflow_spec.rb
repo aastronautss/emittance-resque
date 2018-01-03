@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'The event workflow' do
-  before do
-    stub_const 'Emittance::Resque::Dispatcher::Jobs', Module.new
-    Emittance.use_broker :resque
-  end
+  before { Emittance.use_broker :resque }
   after { Emittance::Resque::Dispatcher.clear_registrations! }
 
   it 'runs for a single listener' do
@@ -51,7 +48,7 @@ RSpec.describe 'The event workflow' do
   end
 
   it 'correctly serializes/deserializes the event' do
-    expect(Emittance::SpecFixtures::FooWatcher).to receive(:hello).with(kind_of(Emittance::Event))
+    expect(Emittance::SpecFixtures::FooWatcher).to receive(:hello).with(kind_of Emittance::Event)
 
     Emittance::SpecFixtures::FooWatcher.watch :foo, :hello
     Emittance::SpecFixtures::FooEmitter.new.emit :foo

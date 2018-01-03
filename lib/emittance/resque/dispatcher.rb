@@ -8,9 +8,7 @@ module Emittance
   end
 end
 
-require 'emittance/resque/job'
-require 'emittance/resque/dispatcher/job_klass_name'
-require 'emittance/resque/dispatcher/job_klass'
+require 'emittance/resque/process_event_job'
 require 'emittance/resque/event_serializer'
 require 'emittance/resque/event_serializer/default'
 
@@ -20,7 +18,10 @@ module Emittance
     # The Resque dispatcher for Emittance.
     #
     class Dispatcher
-      Jobs = Module.new
+      MethodCallRegistration = Struct.new(:klass_name, :method_name, :queue)
+
+      PROCESS_EVENT_JOB = Emittance::Resque::ProcessEventJob
+      DEFAULT_QUEUE = :default
 
       class << self
         include Emittance::Helpers::ConstantHelpers
@@ -28,10 +29,10 @@ module Emittance
         private
 
         def _process_event(event)
-          jobs = registrations_for(event.class)
+          registrations = registrations_for(event.class)
           serialized_event = serialize_event(event)
 
-          jobs.each { |job| enqueue_job job, serialized_event }
+          registrations.each { |registration| enqueue_job registration, serialized_event }
         end
 
         def _register(_identifier, &_callback)
@@ -41,46 +42,30 @@ module Emittance
         def _register_method_call(identifier, object, method_name)
           validate_method_call object, method_name
 
-          event_klass = find_event_klass(identifier)
-          klass_name = method_call_job_klass_name(event_klass, object, method_name)
-          klass = method_call_job_klass(object, method_name)
-
-          set_namespaced_constant_by_name("#{Jobs.name}::#{klass_name}", klass) unless Jobs.const_defined?(klass_name)
-          registrations_for(identifier) << klass
+          registrations_for(identifier) << new_registration(object, method_name)
         end
 
-        def enqueue_job(job, event)
-          ::Resque.enqueue job, event
+        def new_registration(object, method_name)
+          MethodCallRegistration.new(object.name, method_name)
         end
 
-        def find_event_klass(event)
-          Emittance::EventLookup.find_event_klass(event)
+        def enqueue_job(registration, event)
+          queue = queue_from_registration(registration)
+
+          ::Resque.enqueue_to queue, PROCESS_EVENT_JOB, registration.klass_name, registration.method_name, event
+        end
+
+        def queue_from_registration(registration)
+          registration.queue || DEFAULT_QUEUE
         end
 
         def serialize_event(event)
-          Emittance::Resque::EventSerializer.serialize(event)
-        end
-
-        def method_call_job_klass_name(event_klass, object, method_name)
-          JobKlassName.new(event_klass, object, method_name).generate
-        end
-
-        def job_klass(callback)
-          JobKlass.new(callback).generate
-        end
-
-        def method_call_job_klass(object, method_name)
-          callback = lambda_for_method_call(object, method_name)
-          job_klass callback
+          Emittance::Resque::EventSerializer.serialize event
         end
 
         def validate_method_call(object, _method_name)
           error_msg = 'Emittance::Resque can only call methods on classes and modules'
           raise InvalidCallbackError, error_msg unless object.is_a?(Module)
-        end
-
-        def lambda_for_method_call(object, method_name)
-          ->(event) { object.send method_name, event }
         end
       end
     end
