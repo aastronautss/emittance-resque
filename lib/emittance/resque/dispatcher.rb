@@ -50,16 +50,12 @@ module Emittance
         end
 
         def enqueue_job(registration, event)
-          queue = get_queue_from_registration(registration)
+          queue = queue_from_registration(registration)
 
           ::Resque.enqueue_to queue, PROCESS_EVENT_JOB, registration.klass_name, registration.method_name, event
         end
 
-        def get_klass_from_registration(registration)
-          Object.const_get registration.klass_name
-        end
-
-        def get_queue_from_registration(registration)
+        def queue_from_registration(registration)
           registration.queue || DEFAULT_QUEUE
         end
 
@@ -70,10 +66,6 @@ module Emittance
         def validate_method_call(object, _method_name)
           error_msg = 'Emittance::Resque can only call methods on classes and modules'
           raise InvalidCallbackError, error_msg unless object.is_a?(Module)
-        end
-
-        def lambda_for_method_call(object, method_name)
-          ->(event) { object.send method_name, event }
         end
       end
     end
