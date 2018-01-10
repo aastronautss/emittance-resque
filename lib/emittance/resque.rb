@@ -18,6 +18,14 @@ module Emittance
       def use_serializer(serializer)
         Emittance::Resque::EventSerializer.use_serializer serializer
       end
+
+      def default_queue
+        Emittance::Resque::Dispatcher.default_queue
+      end
+
+      def default_queue=(queue)
+        Emittance::Resque::Dispatcher.default_queue = queue
+      end
     end
   end
 end

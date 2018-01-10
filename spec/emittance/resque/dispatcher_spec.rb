@@ -101,6 +101,16 @@ RSpec.describe Emittance::Resque::Dispatcher do
         expect { action }.to raise_error(Emittance::Resque::InvalidCallbackError)
       end
     end
+
+    context 'when given a queue' do
+      let(:action) { Emittance::Resque::Dispatcher.register_method_call(event, object, method_name, queue: :my_q) }
+
+      it 'adds the queue to the registration' do
+        action
+
+        expect(Emittance::Resque::Dispatcher.registrations_for(event).last.queue).to eq(:my_q)
+      end
+    end
   end
 
   describe '.registrations_for' do
