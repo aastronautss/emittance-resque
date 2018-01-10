@@ -41,7 +41,7 @@ module Emittance
           registrations.each { |registration| enqueue_job registration, serialized_event }
         end
 
-        def _register(_identifier, params = {}, &_callback)
+        def _register(_identifier, _params = {}, &_callback)
           raise InvalidCallbackError, 'Emittance::Resque cannot accept closures as callbacks at this time'
         end
 
