@@ -35,10 +35,9 @@ module Emittance
         private
 
         def _process_event(event)
-          registrations = registrations_for(event.class).map(&:to_h)
           serialized_event = serialize_event(event)
 
-          enqueue_fanout_job(registrations, serialized_event)
+          enqueue_fanout_job(serialized_event)
         end
 
         def _register(_identifier, _params = {}, &_callback)
@@ -57,8 +56,8 @@ module Emittance
           MethodCallRegistration.new(object.name, method_name, queue)
         end
 
-        def enqueue_fanout_job(registrations, event)
-          ::Resque.enqueue EVENT_FANOUT_JOB, registrations, event
+        def enqueue_fanout_job(event)
+          ::Resque.enqueue EVENT_FANOUT_JOB, event
         end
 
         def serialize_event(event)

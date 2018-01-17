@@ -13,27 +13,42 @@ module Emittance
       @queue = :default
 
       class << self
-        def perform(registrations, event)
-          registrations.each { |registration| enqueue_job registration, event }
+        def perform(event)
+          new(event).perform
         end
+      end
 
-        private
+      def initialize(event)
+        @event = event
+      end
 
-        def enqueue_job(registration_h, event)
-          queue = queue_from_registration(registration_h)
+      def perform
+        registrations.each { |registration| enqueue_job registration, event }
+      end
 
-          ::Resque.enqueue_to(
-            queue, PROCESS_EVENT_JOB, registration_h['klass_name'], registration_h['method_name'], event
-          )
-        end
+      private
 
-        def queue_from_registration(registration)
-          registration['queue'] || default_queue
-        end
+      attr_reader :event
 
-        def default_queue
-          Emittance::Resque::Dispatcher.default_queue
-        end
+      def registrations
+        identifier = event['identifier']
+        Emittance::Resque::Dispatcher.registrations_for(identifier)
+      end
+
+      def enqueue_job(registration, event)
+        queue = queue_from_registration(registration)
+
+        ::Resque.enqueue_to(
+          queue, PROCESS_EVENT_JOB, registration.klass_name, registration.method_name, event
+        )
+      end
+
+      def queue_from_registration(registration)
+        registration.queue || default_queue
+      end
+
+      def default_queue
+        Emittance::Resque::Dispatcher.default_queue
       end
     end
   end
