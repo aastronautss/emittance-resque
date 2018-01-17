@@ -27,7 +27,9 @@ RSpec.describe Emittance::Resque::Dispatcher do
       end
 
       it 'queues multiple jobs' do
-        expect(::Resque).to receive(:enqueue_to).exactly(3).times
+        expect(Bar).to receive(:foo)
+        expect(Bar).to receive(:bar)
+        expect(Bar).to receive(:baz)
 
         action
       end
@@ -43,9 +45,11 @@ RSpec.describe Emittance::Resque::Dispatcher do
       end
 
       it 'queues multiple times for the given event' do
-        expect(::Resque).to receive(:enqueue_to).exactly(3).times.with(
-          duck_type(:to_s), kind_of(Class), kind_of(String), duck_type(:to_s), hash_including(identifier: :foo)
-        )
+        expect(Bar).to receive(:foo)
+        expect(Bar).to receive(:bar)
+        expect(Bar).to receive(:baz)
+
+        expect(Foo).to_not receive(:foo)
 
         action
       end

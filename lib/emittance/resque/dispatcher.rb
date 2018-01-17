@@ -8,7 +8,7 @@ module Emittance
   end
 end
 
-require 'emittance/resque/process_event_job'
+require 'emittance/resque/event_fanout_job'
 require 'emittance/resque/event_serializer'
 require 'emittance/resque/event_serializer/default'
 
@@ -20,7 +20,7 @@ module Emittance
     class Dispatcher
       MethodCallRegistration = Struct.new(:klass_name, :method_name, :queue)
 
-      PROCESS_EVENT_JOB = Emittance::Resque::ProcessEventJob
+      EVENT_FANOUT_JOB = Emittance::Resque::EventFanoutJob
       DEFAULT_QUEUE = :default
 
       class << self
@@ -35,10 +35,9 @@ module Emittance
         private
 
         def _process_event(event)
-          registrations = registrations_for(event.class)
           serialized_event = serialize_event(event)
 
-          registrations.each { |registration| enqueue_job registration, serialized_event }
+          enqueue_fanout_job(serialized_event)
         end
 
         def _register(_identifier, _params = {}, &_callback)
@@ -57,14 +56,8 @@ module Emittance
           MethodCallRegistration.new(object.name, method_name, queue)
         end
 
-        def enqueue_job(registration, event)
-          queue = queue_from_registration(registration)
-
-          ::Resque.enqueue_to queue, PROCESS_EVENT_JOB, registration.klass_name, registration.method_name, event
-        end
-
-        def queue_from_registration(registration)
-          registration.queue || default_queue
+        def enqueue_fanout_job(event)
+          ::Resque.enqueue EVENT_FANOUT_JOB, event
         end
 
         def serialize_event(event)

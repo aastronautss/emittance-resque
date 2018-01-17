@@ -14,14 +14,16 @@ require 'active_record'
 Dir[File.dirname(__FILE__) + "/fixtures/**/*.rb"].each { |f| require f }
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each { |f| require f }
 
+Resque.inline = true
+
 RSpec.configure do |config|
   config.include BackgroundJobs
 
-  config.around(:each) do |example|
-    run_jobs_inline do
-      example.run
-    end
-  end
+  # config.around(:each) do |example|
+  #   run_jobs_inline do
+  #     example.run
+  #   end
+  # end
 
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = '.rspec_status'
