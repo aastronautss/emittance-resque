@@ -24,4 +24,17 @@ RSpec.describe Emittance::Resque do
       expect(Emittance::Resque.default_queue).to eq(:foo)
     end
   end
+
+  describe '.fanout_queue=' do
+    let(:action) { Emittance::Resque.fanout_queue = :foo }
+
+    it 'delegates' do
+      expect(Emittance::Resque::Dispatcher).to receive(:fanout_queue=).with(kind_of Symbol)
+      action
+    end
+  end
+
+  describe 'interface contracts' do
+    specify { expect(Emittance::Resque::Dispatcher).to respond_to(:fanout_queue=).with(1).argument }
+  end
 end

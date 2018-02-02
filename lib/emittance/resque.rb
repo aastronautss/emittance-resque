@@ -26,6 +26,10 @@ module Emittance
       def default_queue=(queue)
         Emittance::Resque::Dispatcher.default_queue = queue
       end
+
+      def fanout_queue=(queue)
+        Emittance::Resque::Dispatcher.fanout_queue = queue
+      end
     end
   end
 end

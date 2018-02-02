@@ -26,10 +26,14 @@ module Emittance
       class << self
         include Emittance::Helpers::ConstantHelpers
 
-        attr_writer :default_queue
+        attr_writer :default_queue, :fanout_queue
 
         def default_queue
           @default_queue || DEFAULT_QUEUE
+        end
+
+        def fanout_queue
+          @fanout_queue || default_queue
         end
 
         private
@@ -57,7 +61,7 @@ module Emittance
         end
 
         def enqueue_fanout_job(event)
-          ::Resque.enqueue EVENT_FANOUT_JOB, event
+          ::Resque.enqueue_to fanout_queue, EVENT_FANOUT_JOB, event
         end
 
         def serialize_event(event)
